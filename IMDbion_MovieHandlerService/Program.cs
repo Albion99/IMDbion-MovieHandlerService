@@ -3,11 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using IMDbion_MovieHandlerService.ExceptionHandler;
 using IMDbion_MovieHandlerService.Services;
+using static K4os.Compression.LZ4.Engine.Pubternal;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 
 // Add contexts
 builder.Services.AddDbContext<MovieContext>(options =>
@@ -23,7 +23,6 @@ builder.Services.AddScoped<IMovieService, MovieService>();
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
-
 // Cors configuration
 builder.Services.AddCors(options =>
 {
@@ -37,6 +36,11 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Ensure the database schema is created during startup
+using var serviceScope = app.Services.GetService<IServiceScopeFactory>().CreateScope();
+var context = serviceScope.ServiceProvider.GetRequiredService<MovieContext>();
+context.Database.EnsureCreated();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
