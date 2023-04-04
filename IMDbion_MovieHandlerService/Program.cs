@@ -38,8 +38,8 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Ensure the database schema is created during startup
-using var serviceScope = app.Services.GetService<IServiceScopeFactory>().CreateScope();
-var context = serviceScope.ServiceProvider.GetRequiredService<MovieContext>();
+using var scope = app.Services.CreateScope();
+var context = scope.ServiceProvider.GetService<MovieContext>();
 context.Database.EnsureCreated();
 
 // Configure the HTTP request pipeline.
