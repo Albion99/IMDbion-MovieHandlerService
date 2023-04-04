@@ -11,41 +11,41 @@ namespace IMDbion_MovieHandlerService.Controllers
     [Route("movies")]
     public class MovieController : ControllerBase
     {
-        private readonly MovieService _movieService;
+        private readonly IMovieService _movieService;
 
-        public MovieController(MovieService movieService)
+        public MovieController(IMovieService movieService)
         {
             _movieService = movieService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
+        public async Task<IEnumerable<Movie>> GetMovies()
         {
             return await _movieService.GetAllMovies();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Movie>> GetSelectedMovie(int movieId)
+        public async Task<Movie> GetSelectedMovie(Guid movieId)
         {
             return await _movieService.GetMovie(movieId);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Movie>> AddMovie(Movie movie)
+        public async Task<Movie> AddMovie([FromBody] Movie movie)
         {
             return await _movieService.Create(movie);  
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Movie>> UpdateMovie(int id, Movie movie)
+        public async Task<Movie> UpdateMovie(Guid movieId, [FromBody] Movie movie)
         {
-            return await _movieService.Update(id, movie);
+            return await _movieService.Update(movieId, movie);
         }
 
         [HttpDelete("{id}")]
-        public void DeleteMovie(int id)
+        public async Task DeleteMovie(Guid id)
         {
-            _movieService.Delete(id);
+            await _movieService.Delete(id);
         }
     }
 }

@@ -9,6 +9,6 @@ namespace IMDbion_MovieHandlerService.DataContext
         {
         }
 
-        public DbSet<Movie> Movies { get; set; }
+        public DbSet<Movie> Movies;
     }
 }

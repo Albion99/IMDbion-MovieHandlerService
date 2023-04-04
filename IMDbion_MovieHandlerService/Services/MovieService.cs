@@ -1,4 +1,5 @@
 ﻿using IMDbion_MovieHandlerService.DataContext;
+using IMDbion_MovieHandlerService.Exceptions;
 using IMDbion_MovieHandlerService.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -16,51 +17,52 @@ namespace IMDbion_MovieHandlerService.Services
             _movieContext = movieContext;
         }
 
-        public async Task<ActionResult<IEnumerable<Movie>>> GetAllMovies()
+        public async Task<IEnumerable<Movie>> GetAllMovies()
         {
             return await _movieContext.Movies.ToListAsync();
         }
 
-        public async Task<ActionResult<Movie>> GetMovie(int movieId)
+        public async Task<Movie> GetMovie(Guid movieId)
         {
-            var foundMovie = await _movieContext.Movies.FindAsync(movieId);
-
-            if (foundMovie == null)
-            {
-                throw new Exception("Movie with id:" + movieId + " was not found");
-            }
-
-            return foundMovie;
+             return await _movieContext.Movies.FindAsync(movieId) ?? throw new NotFoundException("Movie with id: " + movieId + " does not exist");
         }
 
-        public async Task<ActionResult<Movie>> Create(Movie movie)
+        public async Task<Movie> Create(Movie movie)
         {
+            if (movie == null)
+            {
+                throw new FieldNullException("Movie can't be empty!");
+            }
+
             _movieContext.Movies.Add(movie);
             await _movieContext.SaveChangesAsync();
 
             return await GetMovie(movie.Id);
         }
 
-        public async Task<ActionResult<Movie>> Update(int movieId, Movie movie)
+        public async Task<Movie> Update(Guid movieId, Movie movie)
         {
-            if (movieId != movie.Id)
+            if (movie == null)
             {
-                throw new Exception("Movie with id:" + movieId + " was not found");
+                throw new FieldNullException("Movie can't be empty!");
+
             }
+
+            movie.Id = movieId;
 
             _movieContext.Entry(movie).State = EntityState.Modified;
             await _movieContext.SaveChangesAsync();
 
-            return await GetMovie(movieId);
+            return await GetMovie(movie.Id);
         }
 
-        public async void Delete(int movieId)
+        public async Task Delete(Guid movieId)
         {
             var foundMovie = await _movieContext.Movies.FindAsync(movieId);
 
             if (foundMovie == null)
             {
-                throw new Exception("Movie with id:" + movieId + " was not found");
+                throw new NotFoundException("Movie with id: " + movieId + " does not exist");
             }
 
             _movieContext.Movies.Remove(foundMovie);
