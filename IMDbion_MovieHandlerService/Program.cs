@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using IMDbion_MovieHandlerService.ExceptionHandler;
 using IMDbion_MovieHandlerService.Services;
-using static K4os.Compression.LZ4.Engine.Pubternal;
+using IMDbion_MovieHandlerService.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +20,7 @@ builder.Services.AddSwaggerGen();
 
 // Add services
 builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddAutoMapper(typeof(MovieMapper));
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 

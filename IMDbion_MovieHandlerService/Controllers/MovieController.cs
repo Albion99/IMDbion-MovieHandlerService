@@ -4,6 +4,9 @@ using IMDbion_MovieHandlerService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using IMDbion_MovieHandlerService.Services;
+using IMDbion_MovieHandlerService.Mappers;
+using AutoMapper;
+using IMDbion_MovieHandlerService.DTO;
 
 namespace IMDbion_MovieHandlerService.Controllers
 {
@@ -12,40 +15,46 @@ namespace IMDbion_MovieHandlerService.Controllers
     public class MovieController : ControllerBase
     {
         private readonly IMovieService _movieService;
+        private readonly IMapper _mapper;
 
-        public MovieController(IMovieService movieService)
+        public MovieController(IMovieService movieService, IMapper mapper)
         {
             _movieService = movieService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Movie>> GetMovies()
+        public async Task<List<MovieDTO>> GetMovies()
         {
-            return await _movieService.GetAllMovies();
+            var movies = await _movieService.GetAllMovies();
+            return _mapper.Map<List<MovieDTO>>(movies);
         }
 
-        [HttpGet("{id}")]
-        public async Task<Movie> GetSelectedMovie(Guid movieId)
+        [HttpGet("{movieId}")]
+        public async Task<MovieDTO> GetSelectedMovie(Guid movieId)
         {
-            return await _movieService.GetMovie(movieId);
+            Movie movie = await _movieService.GetMovie(movieId);
+            return _mapper.Map<MovieDTO>(movie);
         }
 
         [HttpPost]
-        public async Task<Movie> AddMovie([FromBody] Movie movie)
+        public async Task<Movie> AddMovie([FromBody] MovieDTO movieDTO)
         {
-            return await _movieService.Create(movie);  
+            Movie movie = _mapper.Map<Movie>(movieDTO);
+            return await _movieService.Create(movie);
         }
 
-        [HttpPut("{id}")]
-        public async Task<Movie> UpdateMovie(Guid movieId, [FromBody] Movie movie)
+        [HttpPut("{movieId}")]
+        public async Task<Movie> UpdateMovie(Guid movieId, [FromBody] MovieDTO movieDTO)
         {
+            Movie movie = _mapper.Map<Movie>(movieDTO);
             return await _movieService.Update(movieId, movie);
         }
 
-        [HttpDelete("{id}")]
-        public async Task DeleteMovie(Guid id)
+        [HttpDelete("{movieId}")]
+        public async Task DeleteMovie(Guid movieId)
         {
-            await _movieService.Delete(id);
+            await _movieService.Delete(movieId);
         }
     }
 }

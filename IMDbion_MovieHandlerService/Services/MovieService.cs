@@ -45,7 +45,6 @@ namespace IMDbion_MovieHandlerService.Services
             if (movie == null)
             {
                 throw new FieldNullException("Movie can't be empty!");
-
             }
 
             movie.Id = movieId;
