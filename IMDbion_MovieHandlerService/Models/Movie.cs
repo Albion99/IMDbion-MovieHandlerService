@@ -26,7 +26,7 @@ namespace IMDbion_MovieHandlerService.Models
 
         [Required]
         [Column("length", TypeName = "int(11)")]
-        public string Length { get; set; }
+        public int Length { get; set; }
 
         [Required]
         [Column("publicationDate")]
@@ -37,27 +37,10 @@ namespace IMDbion_MovieHandlerService.Models
         [Column("countryOfOrigin", TypeName = "varchar(100)")]
         public string CountryOfOrigin { get; set; }
 
-        [Required]
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; }
 
-        [Required]
         [Column("updatedAt")]
         public DateTime UpdatedAt { get; set; }
-
-        public Movie() { }
-
-        public Movie(Guid id, string title, string description, string genre, string length, DateTime publicationDate, string countryOfOrigin, DateTime createdAt, DateTime updatedAt)
-        {
-            Id = id;
-            Title = title;
-            Description = description;
-            Genre = genre;
-            Length = length;
-            PublicationDate = publicationDate;
-            CountryOfOrigin = countryOfOrigin;
-            CreatedAt = createdAt;
-            UpdatedAt = updatedAt;
-        }
     }
 }

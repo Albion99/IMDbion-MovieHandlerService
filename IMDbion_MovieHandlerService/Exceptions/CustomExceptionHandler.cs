@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Runtime.InteropServices;
 using IMDbion_MovieHandlerService.Exceptions;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -41,11 +42,14 @@ namespace IMDbion_MovieHandlerService.ExceptionHandler
                 case FieldNullException _:
                     response.StatusCode = (int)HttpStatusCode.NotAcceptable;
                     break;
+                case BadRequestException _:
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    break;
 
                 default:
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     await response.WriteAsync(JsonConvert.SerializeObject(new { Error = "An error occurred while processing your request." }));
-                    break;
+                    throw ex;
             }
         }
     }
