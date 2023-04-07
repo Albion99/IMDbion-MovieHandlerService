@@ -69,4 +69,4 @@ jobs:
           file: IMDbion_MovieHandlerService/Dockerfile
           context: .
           push: true
-          tags: albion99/movieservice:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/movieservice:latest
