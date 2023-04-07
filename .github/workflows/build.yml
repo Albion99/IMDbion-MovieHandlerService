@@ -65,5 +65,5 @@ jobs:
 
       - name: Push to Docker Hub
         run: |
-          docker build -t albion99/microservice:latest .
-          docker push albion99/microservice:latest
+          docker build -t albion99/movieservice:latest .
+          docker push albion99/movieservice:latest
