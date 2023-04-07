@@ -63,9 +63,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/movieservice:latest
+      - name: Push to Docker Hub
+        run: |
+          docker build -t albion99/microservice:latest .
+          docker push albion99/microservice:latest
