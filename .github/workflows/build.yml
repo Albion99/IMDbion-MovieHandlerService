@@ -66,6 +66,6 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v4
         with:
-          context: IMDbion_MovieHandlerService/DockerFile
+          context: ./IMDbion_MovieHandlerService/DockerFile
           push: true
           tags: albion99/movieservice:latest
