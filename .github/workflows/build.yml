@@ -68,4 +68,4 @@ jobs:
         with:
           context: IMDbion_MovieHandlerService/
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/movieservice:latest
+          tags: "${{ secrets.DOCKER_USERNAME }}/movieservice:latest"
