@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using IMDbion_MovieHandlerService.DTO;
+using IMDbion_MovieHandlerService.DTOs;
 using IMDbion_MovieHandlerService.Models;
 
 namespace IMDbion_MovieHandlerService.Mappers
@@ -9,6 +9,7 @@ namespace IMDbion_MovieHandlerService.Mappers
         public MovieMapper() 
         {
             CreateMap<Movie, MovieDTO>().ReverseMap();
+            CreateMap<MovieDTO, MovieCreateDTO>().ReverseMap();
         }
     }
 }

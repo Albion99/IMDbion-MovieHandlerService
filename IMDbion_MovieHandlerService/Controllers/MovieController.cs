@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using IMDbion_MovieHandlerService.Services;
 using IMDbion_MovieHandlerService.Mappers;
 using AutoMapper;
-using IMDbion_MovieHandlerService.DTO;
+using IMDbion_MovieHandlerService.DTOs;
 
 namespace IMDbion_MovieHandlerService.Controllers
 {
@@ -38,17 +38,23 @@ namespace IMDbion_MovieHandlerService.Controllers
         }
 
         [HttpPost]
-        public async Task<Movie> AddMovie([FromBody] MovieDTO movieDTO)
+        public async Task<MovieDTO> AddMovie([FromBody] MovieCreateDTO movieCreateDTO)
         {
+            MovieDTO movieDTO = _mapper.Map<MovieDTO>(movieCreateDTO);
             Movie movie = _mapper.Map<Movie>(movieDTO);
-            return await _movieService.Create(movie);
+
+            await _movieService.Create(movie);
+            return movieDTO;
         }
 
         [HttpPut("{movieId}")]
-        public async Task<Movie> UpdateMovie(Guid movieId, [FromBody] MovieDTO movieDTO)
+        public async Task<MovieDTO> UpdateMovie(Guid movieId, [FromBody] MovieCreateDTO movieCreateDTO)
         {
+            MovieDTO movieDTO = _mapper.Map<MovieDTO>(movieCreateDTO);
             Movie movie = _mapper.Map<Movie>(movieDTO);
-            return await _movieService.Update(movieId, movie);
+
+            await _movieService.Update(movieId, movie);
+            return movieDTO;
         }
 
         [HttpDelete("{movieId}")]

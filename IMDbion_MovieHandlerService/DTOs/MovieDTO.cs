@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace IMDbion_MovieHandlerService.DTO
+namespace IMDbion_MovieHandlerService.DTOs
 {
     public class MovieDTO
     {
