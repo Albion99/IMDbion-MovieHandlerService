@@ -10,6 +10,7 @@ using System.Reflection.Metadata;
 using MockQueryable.Moq;
 using IMDbion_MovieHandlerService.Exceptions;
 using System.Formats.Asn1;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace IMDbion_MovieHandlerService.Test
 {
@@ -163,6 +164,7 @@ namespace IMDbion_MovieHandlerService.Test
             };
 
             _mockMovieContext.Setup(x => x.Movies.FindAsync(movie.Id)).ReturnsAsync(movie);
+            _mockMovieContext.Setup(x => x.Movies.Update(movie)).Returns(Mock.Of<EntityEntry<Movie>>);
             _mockMovieContext.Setup(x => x.SaveChangesAsync(default)).ReturnsAsync(1);
 
             movie.Title = "Test";
@@ -174,8 +176,9 @@ namespace IMDbion_MovieHandlerService.Test
             Assert.That(result.Id, Is.EqualTo(movie.Id));
             Assert.That(result.Title, Is.EqualTo(movie.Title));
 
-            _mockMovieContext.Verify(x => x.SaveChangesAsync(default), Times.Once());
             _mockMovieContext.Verify(x => x.Movies.FindAsync(movie.Id), Times.Once());
+            _mockMovieContext.Verify(x => x.Update(movie), Times.Once());
+            _mockMovieContext.Verify(x => x.SaveChangesAsync(default), Times.Once());
         }
 
         [Test]

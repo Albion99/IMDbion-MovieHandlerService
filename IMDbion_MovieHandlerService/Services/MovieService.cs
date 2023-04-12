@@ -56,7 +56,7 @@ namespace IMDbion_MovieHandlerService.Services
 
             movie.Id = movieId;
 
-            _movieContext.Entry(movie).State = EntityState.Modified;
+            _movieContext.Update(movie);
             await _movieContext.SaveChangesAsync();
 
             return await GetMovie(movie.Id);
