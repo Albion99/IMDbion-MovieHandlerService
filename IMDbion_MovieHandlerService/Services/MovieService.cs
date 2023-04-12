@@ -24,14 +24,21 @@ namespace IMDbion_MovieHandlerService.Services
 
         public async Task<Movie> GetMovie(Guid movieId)
         {
-             return await _movieContext.Movies.FindAsync(movieId) ?? throw new NotFoundException("Movie with id: " + movieId + " does not exist");
+            var movie = await _movieContext.Movies.FindAsync(movieId);
+
+            if (movie == null)
+            {
+                throw new NotFoundException("Movie with id: " + movieId + " does not exist");
+            }
+
+            return movie;
         }
 
         public async Task<Movie> Create(Movie movie)
         {
             if (movie == null)
             {
-                throw new FieldNullException("Movie can't be empty!");
+                throw new CantBeNullException("Movie can't be empty!");
             }
 
             _movieContext.Movies.Add(movie);
@@ -44,7 +51,7 @@ namespace IMDbion_MovieHandlerService.Services
         {
             if (movie == null)
             {
-                throw new FieldNullException("Movie can't be empty!");
+                throw new CantBeNullException("Movie can't be empty!");
             }
 
             movie.Id = movieId;

@@ -39,7 +39,7 @@ namespace IMDbion_MovieHandlerService.ExceptionHandler
                     response.StatusCode = (int)HttpStatusCode.NotFound;
                     break;
 
-                case FieldNullException _:
+                case CantBeNullException _:
                     response.StatusCode = (int)HttpStatusCode.NotAcceptable;
                     break;
                 case BadRequestException _:
