@@ -11,6 +11,7 @@ using MockQueryable.Moq;
 using IMDbion_MovieHandlerService.Exceptions;
 using System.Formats.Asn1;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace IMDbion_MovieHandlerService.Test
 {
@@ -95,7 +96,7 @@ namespace IMDbion_MovieHandlerService.Test
         }
 
         [Test]
-        public async Task Should_Throw_Not_Found_Exception()
+        public async Task Should_Throw_Not_Found_Exception_If_Movie_Doesnt_Exist()
         {
             // Arrange
             Guid guid = Guid.NewGuid();
@@ -106,7 +107,7 @@ namespace IMDbion_MovieHandlerService.Test
         }
 
         [Test]
-        public async Task Should_Add_Movie_And_Return_Movie()
+        public async Task Should_Create_Movie_And_Return_Movie()
         {
             // Arrange
             Movie movie = new() {
@@ -138,7 +139,7 @@ namespace IMDbion_MovieHandlerService.Test
         }
 
         [Test]
-        public async Task Should_Throw_Cant_Be_Null_Exception()
+        public void Should_Throw_Cant_Be_Null_Exception_If_Creating_Movie_Is_Null()
         {
             // Arrange
             Movie movie = null;
@@ -182,6 +183,17 @@ namespace IMDbion_MovieHandlerService.Test
         }
 
         [Test]
+        public void Should_Throw_Cant_Be_Null_Exception_If_Updating_Movie_Is_Null()
+        {
+            // Arrange
+            Movie movie = null;
+            Guid guid = Guid.NewGuid();
+
+            // Act
+            Assert.ThrowsAsync<CantBeNullException>(() => _movieService.Update(guid, movie));
+        }
+
+        [Test]
         public async Task Should_Delete_Selected_Movie()
         {
             // Arrange
@@ -208,6 +220,31 @@ namespace IMDbion_MovieHandlerService.Test
             _mockMovieContext.Verify(x => x.Movies.FindAsync(movie.Id), Times.Once());
             _mockMovieContext.Verify(x => x.Movies.Remove(movie), Times.Once);
             _mockMovieContext.Verify(x => x.SaveChangesAsync(default), Times.Once);
+        }
+
+        [Test]
+        public void Should_Throw_Not_Found_Exception_If_Deleting_Non_Existant_Movie()
+        {
+            // Arrange
+            Movie movie = new()
+            {
+                Id = Guid.NewGuid(),
+                Title = "The Shawshank Redemption",
+                Description = "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+                Genre = "Drama",
+                Length = 142,
+                PublicationDate = new DateTime(1994, 9, 23),
+                CountryOfOrigin = "USA",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _mockMovieContext.Setup(x => x.Movies.Add(movie));
+
+            Guid guid = Guid.NewGuid();
+
+            // Act
+            Assert.ThrowsAsync<NotFoundException>(() => _movieService.Delete(guid));
         }
     }
 }
