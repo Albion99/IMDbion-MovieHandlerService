@@ -102,7 +102,7 @@ namespace IMDbion_MovieHandlerService.Test
             _mockMovieContext.Setup(x => x.Movies.FindAsync(guid)).ReturnsAsync((Movie)null);
 
             // Act
-            var exception = Assert.ThrowsAsync<NotFoundException>(async () => await _movieService.GetMovie(guid));
+            Assert.ThrowsAsync<NotFoundException>(async () => await _movieService.GetMovie(guid));
         }
 
         [Test]

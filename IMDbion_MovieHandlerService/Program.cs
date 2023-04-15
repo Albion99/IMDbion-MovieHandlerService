@@ -50,6 +50,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(MyAllowSpecificOrigins);
+
 // Add custom middleware
 app.UseMiddleware<CustomExceptionHandler>();
 
