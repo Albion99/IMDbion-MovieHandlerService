@@ -39,7 +39,7 @@ namespace IMDbion_MovieHandlerService.ExceptionHandler
                     response.StatusCode = (int)HttpStatusCode.NotFound;
                     break;
 
-                case FieldNullException _:
+                case CantBeNullException _:
                     response.StatusCode = (int)HttpStatusCode.NotAcceptable;
                     break;
                 case BadRequestException _:
@@ -49,7 +49,7 @@ namespace IMDbion_MovieHandlerService.ExceptionHandler
                 default:
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     await response.WriteAsync(JsonConvert.SerializeObject(new { Error = "An error occurred while processing your request." }));
-                    throw ex;
+                    break;
             }
         }
     }

@@ -1,8 +1,8 @@
 ﻿namespace IMDbion_MovieHandlerService.Exceptions
 {
-    public class FieldNullException : Exception
+    public class CantBeNullException : Exception
     {
-        public FieldNullException(string message)
+        public CantBeNullException(string message)
             : base(message)
         {
         }
