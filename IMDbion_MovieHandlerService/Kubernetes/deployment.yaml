@@ -1,19 +1,19 @@
-﻿apiVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: imdbion-movieservice-deployment
+  name: imdbion-movieservice
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: imdbion-movieservice-deployment
+      app: imdbion-movieservice
   template:
     metadata:
       labels:
-        app: imdbion-movieservice-deployment
+        app: imdbion-movieservice
     spec:
       containers:
-        - name: imdbion-movieservice-deployment
+        - name: imdbion-movieservice
           image: albion99/movieservice:latest
           ports:
             - containerPort: 80
@@ -28,11 +28,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: imdbion-movieservice-service
+  name: imdbion-movieservice
 spec:
   type: LoadBalancer
   selector:
-    app: imdbion-movieservice-deployment
+    app: imdbion-movieservice
   ports:
     - name: http
       protocol: TCP
@@ -87,7 +87,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: mysql-pv-claim
 spec:
-  storageClassName: manual
   accessModes:
     - ReadWriteOnce
   resources:
