@@ -11,7 +11,7 @@ using IMDbion_MovieHandlerService.DTOs;
 namespace IMDbion_MovieHandlerService.Controllers
 {
     [ApiController]
-    [Route("movies")]
+    [Route("")]
     public class MovieController : ControllerBase
     {
         private readonly IMovieService _movieService;
