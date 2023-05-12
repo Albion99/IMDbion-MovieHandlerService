@@ -32,25 +32,32 @@ namespace IMDbion_MovieHandlerService.ExceptionHandler
         {
             var response = context.Response;
             response.ContentType = "application/json";
+            string errorMessage;
 
             switch (ex)
             {
-                case NotFoundException _:
+                case NotFoundException nfe:
                     response.StatusCode = (int)HttpStatusCode.NotFound;
+                    errorMessage = nfe.Message;
                     break;
 
-                case CantBeNullException _:
+                case CantBeNullException cbe:
                     response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                    errorMessage = cbe.Message;
                     break;
-                case BadRequestException _:
+                case BadRequestException bre:
                     response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    errorMessage = bre.Message;
                     break;
 
                 default:
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    await response.WriteAsync(JsonConvert.SerializeObject(new { Error = "An error occurred while processing your request." }));
+                    errorMessage = "An error occurred while processing your request.";
                     break;
             }
+
+            await response.WriteAsync(JsonConvert.SerializeObject(new { Error = errorMessage }));
+            throw ex;
         }
     }
 }
