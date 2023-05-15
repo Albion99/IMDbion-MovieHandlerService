@@ -24,7 +24,7 @@ namespace IMDbion_MovieHandlerService.Services
 
         public async Task<Movie> GetMovie(Guid movieId)
         {
-            var movie = await _movieContext.Movies.FindAsync(movieId);
+            Movie movie = await _movieContext.Movies.FindAsync(movieId);
 
             if (movie == null)
             {
@@ -34,7 +34,7 @@ namespace IMDbion_MovieHandlerService.Services
             return movie;
         }
 
-        public async Task<Movie> Create(Movie movie)
+        public async Task<Movie> Create(Movie movie, List<Guid> actorIds)
         {
             if (movie == null)
             {
@@ -42,12 +42,13 @@ namespace IMDbion_MovieHandlerService.Services
             }
 
             _movieContext.Movies.Add(movie);
+            InsertMovieActor(movie, actorIds);
             await _movieContext.SaveChangesAsync();
 
             return await GetMovie(movie.Id);
         }
 
-        public async Task<Movie> Update(Guid movieId, Movie movie)
+        public async Task<Movie> Update(Guid movieId, Movie movie, List<Guid> actorIds)
         {
             if (movie == null)
             {
@@ -57,6 +58,7 @@ namespace IMDbion_MovieHandlerService.Services
             movie.Id = movieId;
 
             _movieContext.Update(movie);
+            InsertMovieActor(movie, actorIds);
             await _movieContext.SaveChangesAsync();
 
             return await GetMovie(movie.Id);
@@ -64,15 +66,19 @@ namespace IMDbion_MovieHandlerService.Services
 
         public async Task Delete(Guid movieId)
         {
-            var foundMovie = await _movieContext.Movies.FindAsync(movieId);
-
-            if (foundMovie == null)
-            {
-                throw new NotFoundException("Movie with id: " + movieId + " does not exist");
-            }
-
-            _movieContext.Movies.Remove(foundMovie);
+            _movieContext.Movies.Remove(await GetMovie(movieId));
             await _movieContext.SaveChangesAsync();
+        }
+
+        private void InsertMovieActor(Movie movie, List<Guid> actorIds)
+        {
+            List<MovieActor> movieActors = actorIds.Select(actorId => new MovieActor
+            {
+                MovieId = movie.Id,
+                ActorId = actorId
+            }).ToList();
+
+            _movieContext.AddRange(movieActors);
         }
     }
 }

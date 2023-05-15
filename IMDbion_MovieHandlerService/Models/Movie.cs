@@ -37,6 +37,9 @@ namespace IMDbion_MovieHandlerService.Models
         [Column("countryOfOrigin", TypeName = "varchar(100)")]
         public string CountryOfOrigin { get; set; }
 
+        [NotMapped]
+        List<MovieActor> Actors { get; set;}
+
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; }
 

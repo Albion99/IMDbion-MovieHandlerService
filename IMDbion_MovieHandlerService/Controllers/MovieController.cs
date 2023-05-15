@@ -26,7 +26,7 @@ namespace IMDbion_MovieHandlerService.Controllers
         [HttpGet]
         public async Task<List<MovieDTO>> GetMovies()
         {
-            var movies = await _movieService.GetAllMovies();
+            IEnumerable<Movie> movies = await _movieService.GetAllMovies();
             return _mapper.Map<List<MovieDTO>>(movies);
         }
 
@@ -40,20 +40,24 @@ namespace IMDbion_MovieHandlerService.Controllers
         [HttpPost]
         public async Task<MovieDTO> AddMovie([FromBody] MovieCreateDTO movieCreateDTO)
         {
-            MovieDTO movieDTO = _mapper.Map<MovieDTO>(movieCreateDTO);
-            Movie movie = _mapper.Map<Movie>(movieDTO);
+            Movie movie = _mapper.Map<Movie>(movieCreateDTO);
 
-            await _movieService.Create(movie);
+            await _movieService.Create(movie, movieCreateDTO.ActorIds);
+
+            MovieDTO movieDTO = _mapper.Map<MovieDTO>(movie);
             return movieDTO;
         }
 
         [HttpPut("{movieId}")]
         public async Task<MovieDTO> UpdateMovie(Guid movieId, [FromBody] MovieCreateDTO movieCreateDTO)
         {
-            MovieDTO movieDTO = _mapper.Map<MovieDTO>(movieCreateDTO);
-            Movie movie = _mapper.Map<Movie>(movieDTO);
+            Movie movie = _mapper.Map<Movie>(movieCreateDTO);
 
-            await _movieService.Update(movieId, movie);
+            List<Guid> actorIds = movieCreateDTO.ActorIds;
+
+            await _movieService.Update(movieId, movie, actorIds);
+
+            MovieDTO movieDTO = _mapper.Map<MovieDTO>(movie);
             return movieDTO;
         }
 

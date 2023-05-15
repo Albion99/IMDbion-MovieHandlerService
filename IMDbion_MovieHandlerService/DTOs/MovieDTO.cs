@@ -12,6 +12,7 @@ namespace IMDbion_MovieHandlerService.DTOs
         public int Length { get; set; }
         public DateTime PublicationDate { get; set; }
         public string CountryOfOrigin { get; set; }
+        public List<Guid> ActorIds { get; set; }    
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
