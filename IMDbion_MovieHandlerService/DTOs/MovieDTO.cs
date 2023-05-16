@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using IMDbion_MovieHandlerService.Models;
 
 namespace IMDbion_MovieHandlerService.DTOs
 {
@@ -12,7 +13,7 @@ namespace IMDbion_MovieHandlerService.DTOs
         public int Length { get; set; }
         public DateTime PublicationDate { get; set; }
         public string CountryOfOrigin { get; set; }
-        public List<Guid> ActorIds { get; set; }    
+        public List<MovieActor> Actors { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

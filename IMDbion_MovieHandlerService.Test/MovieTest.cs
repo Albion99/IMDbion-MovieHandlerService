@@ -83,6 +83,23 @@ namespace IMDbion_MovieHandlerService.Test
                 UpdatedAt = DateTime.UtcNow
             };
 
+            List<Guid> actorIds = new()
+            {
+                Guid.NewGuid()
+            };
+
+            List<MovieActor> movieActors = new()
+            {
+                new MovieActor
+                {
+                    MovieId = movie.Id,
+                    ActorId = actorIds.First(),
+                }
+            };
+
+            var mock = movieActors.BuildMock().BuildMockDbSet();
+            _mockMovieContext.Setup(x => x.MovieActors).Returns(mock.Object);
+
             _mockMovieContext.Setup(x => x.Movies.FindAsync(movie.Id).Result).Returns(movie);
 
             // Act
@@ -136,6 +153,9 @@ namespace IMDbion_MovieHandlerService.Test
                     ActorId = actorIds.First(),
                 }
             };
+
+            var mock = movieActors.BuildMock().BuildMockDbSet();
+            _mockMovieContext.Setup(x => x.MovieActors).Returns(mock.Object);
 
             _mockMovieContext.Setup(x => x.Movies.Add(movie));
             _mockMovieContext.Setup(x => x.AddRange(movieActors));
@@ -199,6 +219,10 @@ namespace IMDbion_MovieHandlerService.Test
             _mockMovieContext.Setup(x => x.Movies.FindAsync(movie.Id)).ReturnsAsync(movie);
             _mockMovieContext.Setup(x => x.Movies.Update(movie)).Returns(Mock.Of<EntityEntry<Movie>>);
             _mockMovieContext.Setup(x => x.AddRange(movieActors));
+
+            var mock = movieActors.BuildMock().BuildMockDbSet();
+            _mockMovieContext.Setup(x => x.MovieActors).Returns(mock.Object);
+
             _mockMovieContext.Setup(x => x.SaveChangesAsync(default)).ReturnsAsync(1);
 
             movie.Title = "Test";
@@ -243,6 +267,23 @@ namespace IMDbion_MovieHandlerService.Test
                 UpdatedAt = DateTime.UtcNow
             };
 
+            List<Guid> actorIds = new()
+            {
+                Guid.NewGuid()
+            };
+
+            List<MovieActor> movieActors = new()
+            {
+                new MovieActor
+                {
+                    MovieId = movie.Id,
+                    ActorId = actorIds.First(),
+                }
+            };
+
+            var mock = movieActors.BuildMock().BuildMockDbSet();
+            _mockMovieContext.Setup(x => x.MovieActors).Returns(mock.Object);
+
             _mockMovieContext.Setup(x => x.Movies.FindAsync(movie.Id)).ReturnsAsync(movie);
             _mockMovieContext.Setup(x => x.Movies.Remove(movie));
             _mockMovieContext.Setup(x => x.SaveChangesAsync(default)).ReturnsAsync(1);
@@ -251,7 +292,7 @@ namespace IMDbion_MovieHandlerService.Test
             await _movieService.Delete(movie.Id);
 
             // Arrange
-            _mockMovieContext.Verify(x => x.Movies.FindAsync(movie.Id), Times.Once());
+            _mockMovieContext.Verify(x => x.Movies.FindAsync(movie.Id), Times.Exactly(2));
             _mockMovieContext.Verify(x => x.Movies.Remove(movie), Times.Once);
             _mockMovieContext.Verify(x => x.SaveChangesAsync(default), Times.Once);
         }
