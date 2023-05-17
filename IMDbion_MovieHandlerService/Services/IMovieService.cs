@@ -7,8 +7,8 @@ namespace IMDbion_MovieHandlerService.Services
     {
         public Task<IEnumerable<Movie>> GetAllMovies();
         public Task<Movie> GetMovie(Guid movieId);
-        public Task<Movie> Create(Movie movie);
-        public Task<Movie> Update(Guid movieId, Movie movie);
+        public Task<Movie> Create(Movie movie, List<Guid> actorIds);
+        public Task<Movie> Update(Guid movieId, Movie movie, List<Guid> actorIds);
         public Task Delete(Guid movieId);
     }
 }
