@@ -11,21 +11,21 @@ namespace IMDbion_MovieHandlerService.Models
 
         [Required]
         [MaxLength(100)]
-        [Column("title", TypeName = "varchar(100)")]
+        [Column("title")]
         public string Title { get; set; }
 
         [Required]
         [MaxLength(500)]
-        [Column("description", TypeName = "text")]
+        [Column("description")]
         public string Description { get; set; }
 
         [Required]
         [MaxLength(100)]
-        [Column("genre", TypeName = "varchar(100)")]
+        [Column("genre")]
         public string Genre { get; set; }
 
         [Required]
-        [Column("length", TypeName = "int(11)")]
+        [Column("length")]
         public int Length { get; set; }
 
         [Required]
@@ -34,7 +34,7 @@ namespace IMDbion_MovieHandlerService.Models
 
         [Required]
         [MaxLength(100)]
-        [Column("countryOfOrigin", TypeName = "varchar(100)")]
+        [Column("countryOfOrigin")]
         public string CountryOfOrigin { get; set; }
 
         [NotMapped]

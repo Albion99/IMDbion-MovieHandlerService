@@ -10,8 +10,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 // Add contexts
-builder.Services.AddDbContext<MovieContext>(options =>
-                options.UseMySQL(builder.Configuration.GetConnectionString("MovieContext")));
+//builder.Services.AddDbContext<MovieContext>(options =>
+//                options.UseMySQL(builder.Configuration.GetConnectionString("MovieContext")));
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDbContext<MovieContext>(options =>
+                    options.UseMySQL(builder.Configuration.GetConnectionString("MovieContext")));
+}
+else
+{
+    builder.Services.AddDbContext<MovieContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("MovieContext")));
+}
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
