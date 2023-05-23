@@ -15,6 +15,7 @@ namespace IMDbion_MovieHandlerService.DTOs
         public DateTime PublicationDate { get; set; }
         public string CountryOfOrigin { get; set; }
         public List<MovieActor> Actors { get; set; }
+        public string VideoPath { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

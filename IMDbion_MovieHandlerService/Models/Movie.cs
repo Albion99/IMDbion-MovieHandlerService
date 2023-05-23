@@ -40,6 +40,9 @@ namespace IMDbion_MovieHandlerService.Models
         [NotMapped]
         public List<MovieActor> Actors { get; set;}
 
+        [Column("videoPath")]
+        public string VideoPath { get; set; }
+
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; }
 
