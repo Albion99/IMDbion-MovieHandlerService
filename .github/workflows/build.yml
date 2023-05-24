@@ -21,6 +21,12 @@ jobs:
       - name: Restore packages
         run: dotnet restore
 
+      - name: SonarCloud
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
