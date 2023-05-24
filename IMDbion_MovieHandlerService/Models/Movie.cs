@@ -40,6 +40,7 @@ namespace IMDbion_MovieHandlerService.Models
         [NotMapped]
         public List<MovieActor> Actors { get; set;}
 
+        [Required]
         [Column("videoPath")]
         public string VideoPath { get; set; }
 

@@ -40,6 +40,7 @@ namespace IMDbion_MovieHandlerService.Test
                     Length = 142,
                     PublicationDate = new DateTime(1994, 9, 23),
                     CountryOfOrigin = "USA",
+                    VideoPath = "path",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 },
@@ -51,6 +52,7 @@ namespace IMDbion_MovieHandlerService.Test
                     Length = 175,
                     PublicationDate = new DateTime(1972, 3, 24),
                     CountryOfOrigin = "USA",
+                    VideoPath = "path",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 }
@@ -79,6 +81,7 @@ namespace IMDbion_MovieHandlerService.Test
                 Length = 142,
                 PublicationDate = new DateTime(1994, 9, 23),
                 CountryOfOrigin = "USA",
+                VideoPath = "path",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -136,6 +139,7 @@ namespace IMDbion_MovieHandlerService.Test
                 Length = 142,
                 PublicationDate = new DateTime(1994, 9, 23),
                 CountryOfOrigin = "USA",
+                VideoPath = "path",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -198,6 +202,7 @@ namespace IMDbion_MovieHandlerService.Test
                 Length = 142,
                 PublicationDate = new DateTime(1994, 9, 23),
                 CountryOfOrigin = "USA",
+                VideoPath = "path",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -263,6 +268,7 @@ namespace IMDbion_MovieHandlerService.Test
                 Length = 142,
                 PublicationDate = new DateTime(1994, 9, 23),
                 CountryOfOrigin = "USA",
+                VideoPath = "path",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -310,6 +316,7 @@ namespace IMDbion_MovieHandlerService.Test
                 Length = 142,
                 PublicationDate = new DateTime(1994, 9, 23),
                 CountryOfOrigin = "USA",
+                VideoPath = "path",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
