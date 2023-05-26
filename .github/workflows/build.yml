@@ -65,3 +65,27 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/movieservice:latest
+
+  deploy:
+    needs: build-docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Generate kube configuration
+        run: |
+          mkdir ~/.kube
+          touch ~/.kube/config
+          echo "${{ secrets.KUBE_CONFIG }}" >> ~/.kube/config
+
+      - name: Create secrets
+        run: |
+          kubectl delete secret imdbion-movieservice-secrets --ignore-not-found
+          kubectl create secret generic imdbion-movieservice-secrets --from-literal=${{ secrets.DATABASE_CONNECTIONSTRING }}
+
+      - name: Deploy application
+        run: kubectl apply -f IMDbion_MovieHandlerService/Kubernetes/deployment.yaml
+
+      - name: Restart pod
+        run: kubectl rollout restart deploy imdbion-movieservice-deployment
