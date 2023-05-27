@@ -21,9 +21,12 @@ namespace IMDbion_MovieHandlerService.Services
             _movieContext = movieContext;
         }
 
-        public async Task<IEnumerable<Movie>> GetAllMovies()
+        public async Task<IEnumerable<Movie>> GetMovies(int pageSize, int pageNumber)
         {
-            return await _movieContext.Movies.ToListAsync();
+            return await _movieContext.Movies
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
         public async Task<Movie> GetMovie(Guid movieId)
@@ -39,7 +42,6 @@ namespace IMDbion_MovieHandlerService.Services
 
             return movie;
         }
-
 
         public async Task<Movie> Create(Movie movie, List<Guid> actorIds)
         {
