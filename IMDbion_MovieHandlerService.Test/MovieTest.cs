@@ -62,11 +62,11 @@ namespace IMDbion_MovieHandlerService.Test
             _mockMovieContext.Setup(x => x.Movies).Returns(mock.Object);
 
             // Act
-            var result = await _movieService.GetAllMovies();
+            var result = await _movieService.GetMovies(1, 1);
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Count(), Is.EqualTo(2));
+            Assert.That(result.Count(), Is.EqualTo(1));
         }
 
         [Test]
