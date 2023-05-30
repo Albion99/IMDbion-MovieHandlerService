@@ -3,22 +3,24 @@ using IMDbion_MovieHandlerService.DataContext;
 using IMDbion_MovieHandlerService.DTOs;
 using IMDbion_MovieHandlerService.Exceptions;
 using IMDbion_MovieHandlerService.Models;
+using IMDbion_MovieHandlerService.RabbitMQ;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-
 
 namespace IMDbion_MovieHandlerService.Services
 {
     public class MovieService : IMovieService
     {
         private readonly MovieContext _movieContext;
-        private readonly IMapper _mapper;
+        private readonly IRabbitMQPublish _rabbitMQPublisher;
+        private readonly IRabbitMQListener _rabbitMQListener;
 
-        public MovieService(MovieContext movieContext)
+        public MovieService(MovieContext movieContext, IRabbitMQPublish rabbitMQPublisher, IRabbitMQListener rabbitMQListener)
         {
             _movieContext = movieContext;
+            _rabbitMQPublisher = rabbitMQPublisher;
+            _rabbitMQListener = rabbitMQListener;
         }
 
         public async Task<IEnumerable<Movie>> GetMovies(int pageSize, int pageNumber)
@@ -27,6 +29,11 @@ namespace IMDbion_MovieHandlerService.Services
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+        }
+
+        private void MovieHandler(string movieId)
+        {
+            Console.WriteLine($"Received message: {movieId}");
         }
 
         public async Task<Movie> GetMovie(Guid movieId)
@@ -39,6 +46,13 @@ namespace IMDbion_MovieHandlerService.Services
             }
 
             movie.Actors = GetMovieActors(movieId);
+
+            string queueName = "movieIds";
+            Action<string> movieHandler = MovieHandler;
+
+            await _rabbitMQPublisher.Publish(movieId.ToString(), "test", "test2");
+            await _rabbitMQListener.Subscribe(queueName, "test", "test2", movieHandler);
+
 
             return movie;
         }
