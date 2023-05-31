@@ -6,6 +6,7 @@ using IMDbion_MovieHandlerService.Services;
 using IMDbion_MovieHandlerService.Mappers;
 using IMDbion_MovieHandlerService.RabbitMQ;
 using Microsoft.Extensions.DependencyInjection;
+using IMDbion_MovieHandlerService.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,16 +40,22 @@ builder.Services.AddSingleton<IRabbitMQConnection, RabbitMQConnection>(sp =>{
     return new RabbitMQConnection(hostname, username, password);
 });
 
-builder.Services.AddScoped<IRabbitMQPublish>(sp =>
-{
-    var rabbitMQConnection = sp.GetRequiredService<IRabbitMQConnection>();
-    return new RabbitMQPublish(rabbitMQConnection);
-});
+//builder.Services.AddScoped<IRabbitMQPublish>(sp =>
+//{
+//    var rabbitMQConnection = sp.GetRequiredService<IRabbitMQConnection>();
+//    return new RabbitMQPublish(rabbitMQConnection);
+//});
 
-builder.Services.AddScoped<IRabbitMQListener>(sp =>
+//builder.Services.AddScoped<IRabbitMQListener>(sp =>
+//{
+//    var rabbitMQConnection = sp.GetRequiredService<IRabbitMQConnection>();
+//    return new RabbitMQListener(rabbitMQConnection);
+//});
+
+builder.Services.AddScoped<IRabbitMQRetriever<List<Actor>>>(sp =>
 {
     var rabbitMQConnection = sp.GetRequiredService<IRabbitMQConnection>();
-    return new RabbitMQListener(rabbitMQConnection);
+    return new RabbitMQRetriever<List<Actor>>(rabbitMQConnection);
 });
 
 // Add services

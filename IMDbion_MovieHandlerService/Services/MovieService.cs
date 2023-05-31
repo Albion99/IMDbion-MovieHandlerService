@@ -7,20 +7,19 @@ using IMDbion_MovieHandlerService.RabbitMQ;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace IMDbion_MovieHandlerService.Services
 {
     public class MovieService : IMovieService
     {
         private readonly MovieContext _movieContext;
-        private readonly IRabbitMQPublish _rabbitMQPublisher;
-        private readonly IRabbitMQListener _rabbitMQListener;
+        private readonly IRabbitMQRetriever<List<Actor>> _rabbitMQRetriever;
 
-        public MovieService(MovieContext movieContext, IRabbitMQPublish rabbitMQPublisher, IRabbitMQListener rabbitMQListener)
+        public MovieService(MovieContext movieContext, IRabbitMQRetriever<List<Actor>> rabbitMQRetriever)
         {
             _movieContext = movieContext;
-            _rabbitMQPublisher = rabbitMQPublisher;
-            _rabbitMQListener = rabbitMQListener;
+            _rabbitMQRetriever = rabbitMQRetriever;
         }
 
         public async Task<IEnumerable<Movie>> GetMovies(int pageSize, int pageNumber)
@@ -29,11 +28,6 @@ namespace IMDbion_MovieHandlerService.Services
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-        }
-
-        private void MovieHandler(string movieId)
-        {
-            Console.WriteLine($"Received message: {movieId}");
         }
 
         public async Task<Movie> GetMovie(Guid movieId)
@@ -45,14 +39,9 @@ namespace IMDbion_MovieHandlerService.Services
                 throw new NotFoundException("Movie with id: " + movieId + " does not exist");
             }
 
-            movie.Actors = GetMovieActors(movieId);
+            List<Guid> actorIds = GetMovieActors(movieId).Select(movie => movie.ActorId).ToList();
 
-            string queueName = "movieIds";
-            Action<string> movieHandler = MovieHandler;
-
-            await _rabbitMQPublisher.Publish(movieId.ToString(), "test", "test2");
-            await _rabbitMQListener.Subscribe(queueName, "test", "test2", movieHandler);
-
+            movie.Actors = await _rabbitMQRetriever.PublishMessageAndGetResponse(actorIds);
 
             return movie;
         }
