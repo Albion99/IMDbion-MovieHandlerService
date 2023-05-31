@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Channels;
 
@@ -25,8 +26,10 @@ namespace IMDbion_MovieHandlerService.RabbitMQ
 
             var correlationId = Guid.NewGuid().ToString();
             using var channel = _rabbitMQConnection.CreateModel();
+
             channel.ExchangeDeclare("exchange.movies", ExchangeType.Topic, durable: true);
-            channel.QueueBind("queue.movie.actors", "exchange.actors", "movie.actors");
+
+            channel.QueueBind("queue.movie.actors", "exchange.movies", "movie.actors");
 
             channel.BasicPublish(exchange: "exchange.movies",
                                   routingKey: "movie.actors.ids",
@@ -42,14 +45,12 @@ namespace IMDbion_MovieHandlerService.RabbitMQ
                 var message = JsonConvert.DeserializeObject<T>(responseMessage);
                 _responseCompletionSource.SetResult(message);
 
-                Console.WriteLine("Received response message: " + responseMessage);
             };
 
 
             channel.BasicConsume(consumer: consumer,
                                   queue: "queue.movie.actors",
                                   autoAck: true);
-
             return _responseCompletionSource.Task;
         }
     }
