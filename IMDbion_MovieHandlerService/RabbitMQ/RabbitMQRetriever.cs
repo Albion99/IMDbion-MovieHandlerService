@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Channels;
@@ -11,7 +12,8 @@ namespace IMDbion_MovieHandlerService.RabbitMQ
     public class RabbitMQRetriever<T> : IRabbitMQRetriever<T>
     {
         private readonly IRabbitMQConnection _rabbitMQConnection;
-        private TaskCompletionSource<T> _responseCompletionSource;
+        private static readonly Dictionary<string, TaskCompletionSource<T>> _requests = new();
+        private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(30);
 
         private readonly string exchange = "actors";
         private readonly string routingKey = "queue.movie";
@@ -30,17 +32,23 @@ namespace IMDbion_MovieHandlerService.RabbitMQ
 
         public async Task<T> PublishMessageAndGetResponse(object message)
         {
-            _responseCompletionSource = new TaskCompletionSource<T>();
-            
+            var correlationId = Guid.NewGuid().ToString();
+
             var json = JsonConvert.SerializeObject(message);
             var body = Encoding.UTF8.GetBytes(json);
 
-            var correlationId = Guid.NewGuid().ToString();
-
             using var channel = _rabbitMQConnection.CreateModel();
+
+            var properties = channel.CreateBasicProperties();
+            properties.CorrelationId = correlationId;
+            properties.ReplyTo = listenQueue;
+
+            var requestCompletionSource = new TaskCompletionSource<T>();
+            _requests.TryAdd(correlationId, requestCompletionSource);
 
             channel.BasicPublish(exchange: exchange,
                                   routingKey: routingKey,
+                                  basicProperties: properties,
                                   body: body,
                                   mandatory: true);
 
@@ -49,18 +57,33 @@ namespace IMDbion_MovieHandlerService.RabbitMQ
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += (model, eventArgs) =>
             {
+                var correlationId = eventArgs.BasicProperties.CorrelationId;
+
                 var body = eventArgs.Body.ToArray();
                 var responseMessage = Encoding.UTF8.GetString(body);
 
                 var actors = JsonConvert.DeserializeObject<T>(responseMessage);
-                _responseCompletionSource.TrySetResult(actors);
+
+                if (_requests.Remove(correlationId, out var requestCompletionSource))
+                {
+                    requestCompletionSource.TrySetResult(actors);
+                }
 
                 Debug.WriteLine($" [x] Received '{actors}' in movie service");
             };
 
             channel.BasicConsume(listenQueue, true, consumer);
 
-            return await _responseCompletionSource.Task;
+            var timeoutTask = Task.Delay(RequestTimeout);
+            var completedTask = await Task.WhenAny(requestCompletionSource.Task, timeoutTask);
+
+            if (completedTask == timeoutTask)
+            {
+                _requests.Remove(correlationId, out _);
+                throw new TimeoutException("Request timed out.");
+            }
+
+            return await requestCompletionSource.Task;
         }
     }
 }
