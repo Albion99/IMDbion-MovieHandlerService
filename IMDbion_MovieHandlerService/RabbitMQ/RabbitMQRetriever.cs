@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using IMDbion_MovieHandlerService.RabbitMQ;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Diagnostics;
@@ -12,12 +13,22 @@ namespace IMDbion_MovieHandlerService.RabbitMQ
         private readonly IRabbitMQConnection _rabbitMQConnection;
         private TaskCompletionSource<T> _responseCompletionSource;
 
+        private readonly string exchange = "actors";
+        private readonly string routingKey = "queue.movie";
+        private readonly string listenQueue = "queue.actors";
+
         public RabbitMQRetriever(IRabbitMQConnection rabbitMQConnection) 
         {
-            _rabbitMQConnection= rabbitMQConnection;
+            _rabbitMQConnection = rabbitMQConnection;
+
+            using var channel = _rabbitMQConnection.CreateModel();
+
+            channel.ExchangeDeclare(exchange, ExchangeType.Direct, durable: true);
+            channel.QueueDeclare(listenQueue, durable: true, exclusive: false, autoDelete: false);
+            channel.QueueBind(listenQueue, exchange, listenQueue);
         }
 
-        public Task<T> PublishMessageAndGetResponse(object message)
+        public async Task<T> PublishMessageAndGetResponse(object message)
         {
             _responseCompletionSource = new TaskCompletionSource<T>();
             
@@ -25,16 +36,15 @@ namespace IMDbion_MovieHandlerService.RabbitMQ
             var body = Encoding.UTF8.GetBytes(json);
 
             var correlationId = Guid.NewGuid().ToString();
+
             using var channel = _rabbitMQConnection.CreateModel();
 
-            channel.ExchangeDeclare("exchange.movies", ExchangeType.Topic, durable: true);
-
-            channel.QueueBind("queue.movie.actors", "exchange.movies", "movie.actors");
-
-            channel.BasicPublish(exchange: "exchange.movies",
-                                  routingKey: "movie.actors.ids",
+            channel.BasicPublish(exchange: exchange,
+                                  routingKey: routingKey,
                                   body: body,
                                   mandatory: true);
+
+            Debug.WriteLine($" [x] send '{message}' from movie service");
 
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += (model, eventArgs) =>
@@ -42,16 +52,16 @@ namespace IMDbion_MovieHandlerService.RabbitMQ
                 var body = eventArgs.Body.ToArray();
                 var responseMessage = Encoding.UTF8.GetString(body);
 
-                var message = JsonConvert.DeserializeObject<T>(responseMessage);
-                _responseCompletionSource.SetResult(message);
+                var actors = JsonConvert.DeserializeObject<T>(responseMessage);
+                _responseCompletionSource.TrySetResult(actors);
 
+                Debug.WriteLine($" [x] Received '{actors}' in movie service");
             };
 
+            channel.BasicConsume(listenQueue, true, consumer);
 
-            channel.BasicConsume(consumer: consumer,
-                                  queue: "queue.movie.actors",
-                                  autoAck: true);
-            return _responseCompletionSource.Task;
+            return await _responseCompletionSource.Task;
         }
     }
 }
+

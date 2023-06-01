@@ -12,10 +12,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// Add contexts
-//builder.Services.AddDbContext<MovieContext>(options =>
-//                options.UseMySQL(builder.Configuration.GetConnectionString("MovieContext")));
-
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddDbContext<MovieContext>(options =>
@@ -39,18 +35,6 @@ builder.Services.AddSingleton<IRabbitMQConnection, RabbitMQConnection>(sp =>{
     var password = builder.Configuration["RabbitMQ:Password"];
     return new RabbitMQConnection(hostname, username, password);
 });
-
-//builder.Services.AddScoped<IRabbitMQPublish>(sp =>
-//{
-//    var rabbitMQConnection = sp.GetRequiredService<IRabbitMQConnection>();
-//    return new RabbitMQPublish(rabbitMQConnection);
-//});
-
-//builder.Services.AddScoped<IRabbitMQListener>(sp =>
-//{
-//    var rabbitMQConnection = sp.GetRequiredService<IRabbitMQConnection>();
-//    return new RabbitMQListener(rabbitMQConnection);
-//});
 
 builder.Services.AddScoped<IRabbitMQRetriever<List<Actor>>>(sp =>
 {
