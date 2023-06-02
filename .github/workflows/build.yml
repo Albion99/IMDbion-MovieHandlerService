@@ -82,7 +82,7 @@ jobs:
       - name: Create secrets
         run: |
           kubectl delete secret imdbion-movieservice-secrets --ignore-not-found
-          kubectl create secret generic imdbion-movieservice-secrets --from-literal=${{ secrets.DATABASE_CONNECTIONSTRING }}
+          kubectl create secret generic imdbion-movieservice-secrets --from-literal=${{ secrets.DATABASE_CONNECTIONSTRING }} --from-literal=RabbitUsername=${{ secrets.RABBIT_USERNAME }} --from-literal=RabbitPassword=${{ secrets.RABBIT_PASSWORD }} --from-literal=RabbitUri=${{ secrets.RABBIT_URI }}
 
       - name: Deploy application
         run: kubectl apply -f IMDbion_MovieHandlerService/Kubernetes/deployment.yaml

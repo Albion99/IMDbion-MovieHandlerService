@@ -38,7 +38,7 @@ namespace IMDbion_MovieHandlerService.Models
         public string CountryOfOrigin { get; set; }
 
         [NotMapped]
-        public List<MovieActor> Actors { get; set;}
+        public List<Actor> Actors { get; set;}
 
         [Required]
         [Column("videoPath")]

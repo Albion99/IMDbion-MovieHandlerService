@@ -3,30 +3,37 @@ using IMDbion_MovieHandlerService.DataContext;
 using IMDbion_MovieHandlerService.DTOs;
 using IMDbion_MovieHandlerService.Exceptions;
 using IMDbion_MovieHandlerService.Models;
+using IMDbion_MovieHandlerService.RabbitMQ;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-
+using System.Diagnostics;
 
 namespace IMDbion_MovieHandlerService.Services
 {
     public class MovieService : IMovieService
     {
         private readonly MovieContext _movieContext;
-        private readonly IMapper _mapper;
+        private readonly IRabbitMQRetriever<List<Actor>> _rabbitMQRetriever;
 
-        public MovieService(MovieContext movieContext)
+        public MovieService(MovieContext movieContext, IRabbitMQRetriever<List<Actor>> rabbitMQRetriever)
         {
             _movieContext = movieContext;
+            _rabbitMQRetriever = rabbitMQRetriever;
         }
 
         public async Task<IEnumerable<Movie>> GetMovies(int pageSize, int pageNumber)
         {
             return await _movieContext.Movies
+                .OrderByDescending(m => m.CreatedAt)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+        }
+
+        public async Task<int> GetTotalMoviesCount()
+        {
+            return await _movieContext.Movies.CountAsync();
         }
 
         public async Task<Movie> GetMovie(Guid movieId)
@@ -38,7 +45,9 @@ namespace IMDbion_MovieHandlerService.Services
                 throw new NotFoundException("Movie with id: " + movieId + " does not exist");
             }
 
-            movie.Actors = GetMovieActors(movieId);
+            List<Guid> actorIds = GetMovieActors(movieId).Select(movie => movie.ActorId).ToList();
+
+            movie.Actors = await _rabbitMQRetriever.PublishMessageAndGetResponse(actorIds);
 
             return movie;
         }
@@ -49,6 +58,8 @@ namespace IMDbion_MovieHandlerService.Services
             {
                 throw new CantBeNullException("Movie can't be empty!");
             }
+
+            movie.CreatedAt = DateTime.UtcNow;
 
             _movieContext.Movies.Add(movie);
             InsertMovieActors(movie, actorIds);
@@ -65,6 +76,8 @@ namespace IMDbion_MovieHandlerService.Services
             }
 
             movie.Id = movieId;
+            movie.CreatedAt = DateTime.Parse(movie.CreatedAt.ToString());
+            movie.UpdatedAt = DateTime.UtcNow;
 
             _movieContext.Update(movie);
             DeleteMovieActors(movie);

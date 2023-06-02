@@ -12,6 +12,7 @@ using IMDbion_MovieHandlerService.Exceptions;
 using System.Formats.Asn1;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using IMDbion_MovieHandlerService.RabbitMQ;
 
 namespace IMDbion_MovieHandlerService.Test
 {
@@ -19,12 +20,14 @@ namespace IMDbion_MovieHandlerService.Test
     {
         private Mock<MovieContext> _mockMovieContext;
         private MovieService _movieService;
+        private Mock<IRabbitMQRetriever<List<Actor>>> _mockRabbitMQRetriever;
 
         [SetUp]
         public void Setup()
         {
             _mockMovieContext = new Mock<MovieContext>();
-            _movieService = new MovieService(_mockMovieContext.Object);
+            _mockRabbitMQRetriever = new Mock<IRabbitMQRetriever<List<Actor>>>();
+            _movieService = new MovieService(_mockMovieContext.Object, _mockRabbitMQRetriever.Object);
         }
 
         [Test]
@@ -73,7 +76,8 @@ namespace IMDbion_MovieHandlerService.Test
         public async Task Should_Get_Selected_Movie()
         {
             // Arrange
-            Movie movie = new() {
+            Movie movie = new()
+            {
                 Id = Guid.NewGuid(),
                 Title = "The Shawshank Redemption",
                 Description = "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
@@ -194,7 +198,8 @@ namespace IMDbion_MovieHandlerService.Test
         public async Task Should_Update_Movie_And_Return_Movie()
         {
             // Arrange
-            Movie movie = new() {
+            Movie movie = new()
+            {
                 Id = Guid.NewGuid(),
                 Title = "The Shawshank Redemption",
                 Description = "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
@@ -260,7 +265,8 @@ namespace IMDbion_MovieHandlerService.Test
         public async Task Should_Delete_Selected_Movie()
         {
             // Arrange
-            Movie movie = new() {
+            Movie movie = new()
+            {
                 Id = Guid.NewGuid(),
                 Title = "The Shawshank Redemption",
                 Description = "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
