@@ -24,11 +24,21 @@ namespace IMDbion_MovieHandlerService.Controllers
         }
 
         [HttpGet]
-        public async Task<List<MovieDTO>> GetMovies(int pageSize = 10, int pageNumber = 1)
+        public async Task<ActionResult<MovieListDTO>> GetMovies(int pageSize = 10, int pageNumber = 1)
         {
             IEnumerable<Movie> movies = await _movieService.GetMovies(pageSize, pageNumber);
             List<MovieDTO> movieDTOs = _mapper.Map<List<MovieDTO>>(movies);
-            return movieDTOs;
+
+            int totalMoviesCount = await _movieService.GetTotalMoviesCount();
+            int totalPages = (int)Math.Ceiling((double)totalMoviesCount / pageSize);
+
+            MovieListDTO movieListDTO = new()
+            {
+                Movies = movieDTOs,
+                TotalPages = totalPages
+            };
+
+            return movieListDTO;
         }
 
         [HttpGet("{movieId}")]

@@ -25,9 +25,15 @@ namespace IMDbion_MovieHandlerService.Services
         public async Task<IEnumerable<Movie>> GetMovies(int pageSize, int pageNumber)
         {
             return await _movieContext.Movies
+                .OrderByDescending(m => m.CreatedAt)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+        }
+
+        public async Task<int> GetTotalMoviesCount()
+        {
+            return await _movieContext.Movies.CountAsync();
         }
 
         public async Task<Movie> GetMovie(Guid movieId)
@@ -53,6 +59,8 @@ namespace IMDbion_MovieHandlerService.Services
                 throw new CantBeNullException("Movie can't be empty!");
             }
 
+            movie.CreatedAt = DateTime.UtcNow;
+
             _movieContext.Movies.Add(movie);
             InsertMovieActors(movie, actorIds);
             await _movieContext.SaveChangesAsync();
@@ -68,6 +76,8 @@ namespace IMDbion_MovieHandlerService.Services
             }
 
             movie.Id = movieId;
+            movie.CreatedAt = DateTime.Parse(movie.CreatedAt.ToString());
+            movie.UpdatedAt = DateTime.UtcNow;
 
             _movieContext.Update(movie);
             DeleteMovieActors(movie);
