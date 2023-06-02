@@ -20,12 +20,19 @@ namespace IMDbion_MovieHandlerService.RabbitMQ
         {
             if (_connection == null || !_connection.IsOpen)
             {
-                var factory = new ConnectionFactory
-                {
-                    HostName = _hostname,
-                    UserName = _username,
-                    Password = _password
-                };
+                var factory = Uri.IsWellFormedUriString(_hostname, UriKind.Absolute)
+                    ? new ConnectionFactory
+                    {
+                        Uri = new Uri(_hostname),
+                        UserName = _username,
+                        Password = _password
+                    }
+                    : new ConnectionFactory
+                    {
+                        HostName = _hostname,
+                        UserName = _username,
+                        Password = _password
+                    };
                 _connection = factory.CreateConnection();
             }
 
