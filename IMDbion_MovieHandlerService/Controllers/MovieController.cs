@@ -60,13 +60,11 @@ namespace IMDbion_MovieHandlerService.Controllers
         }
 
         [HttpPut("{movieId}")]
-        public async Task<MovieDTO> UpdateMovie(Guid movieId, [FromBody] MovieCreateDTO movieCreateDTO)
+        public async Task<MovieDTO> UpdateMovie(Guid movieId, [FromBody] MovieUpdateDTO movieUpdateDTO)
         {
-            Movie movie = _mapper.Map<Movie>(movieCreateDTO);
+            Movie movie = _mapper.Map<Movie>(movieUpdateDTO);
 
-            List<Guid> actorIds = movieCreateDTO.ActorIds;
-
-            await _movieService.Update(movieId, movie, actorIds);
+            await _movieService.Update(movieId, movie, movie.Actors);
 
             MovieDTO movieDTO = _mapper.Map<MovieDTO>(movie);
             return movieDTO;

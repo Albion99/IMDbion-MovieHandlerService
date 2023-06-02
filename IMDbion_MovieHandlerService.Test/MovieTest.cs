@@ -197,6 +197,25 @@ namespace IMDbion_MovieHandlerService.Test
         [Test]
         public async Task Should_Update_Movie_And_Return_Movie()
         {
+            IEnumerable<Actor> actorList = new List<Actor>() {
+                new Actor {
+                    Id = Guid.NewGuid(),
+                    Name = "name",
+                    Age = 20,
+                    CountryOfOrigin = "Netherlands",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new Actor {
+                    Id = Guid.NewGuid(),
+                    Name = "name2",
+                    Age = 20,
+                    CountryOfOrigin = "Netherlands",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+            };
+
             // Arrange
             Movie movie = new()
             {
@@ -208,37 +227,33 @@ namespace IMDbion_MovieHandlerService.Test
                 PublicationDate = new DateTime(1994, 9, 23),
                 CountryOfOrigin = "USA",
                 VideoPath = "path",
+                Actors = actorList.ToList(),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
 
-            List<Guid> actorIds = new()
+            List<MovieActor> movieActors = actorList.Select(actor =>
             {
-                Guid.NewGuid()
-            };
-
-            List<MovieActor> movieActors = new()
-            {
-                new MovieActor
+                return new MovieActor
                 {
+                    Id = actor.Id,
                     MovieId = movie.Id,
-                    ActorId = actorIds.First(),
-                }
-            };
-
-            _mockMovieContext.Setup(x => x.Movies.FindAsync(movie.Id)).ReturnsAsync(movie);
-            _mockMovieContext.Setup(x => x.Movies.Update(movie)).Returns(Mock.Of<EntityEntry<Movie>>);
-            _mockMovieContext.Setup(x => x.AddRange(movieActors));
+                };
+            }).ToList();
 
             var mock = movieActors.BuildMock().BuildMockDbSet();
             _mockMovieContext.Setup(x => x.MovieActors).Returns(mock.Object);
+
+            _mockMovieContext.Setup(x => x.Movies.FindAsync(movie.Id)).ReturnsAsync(movie);
+            _mockMovieContext.Setup(x => x.Movies.Update(movie)).Returns(Mock.Of<EntityEntry<Movie>>);
+            _mockMovieContext.Setup(x => x.AddRange(actorList));
 
             _mockMovieContext.Setup(x => x.SaveChangesAsync(default)).ReturnsAsync(1);
 
             movie.Title = "Test";
 
             // Act
-            var result = await _movieService.Update(movie.Id, movie, actorIds);
+            var result = await _movieService.Update(movie.Id, movie, movie.Actors);
 
             // Assert
             Assert.That(result.Id, Is.EqualTo(movie.Id));
@@ -256,9 +271,9 @@ namespace IMDbion_MovieHandlerService.Test
             // Arrange
             Movie movie = null;
             Guid guid = Guid.NewGuid();
-            List<Guid> actorIds = new();
+            List<Actor> actors = new();
             // Act
-            Assert.ThrowsAsync<CantBeNullException>(() => _movieService.Update(guid, movie, actorIds));
+            Assert.ThrowsAsync<CantBeNullException>(() => _movieService.Update(guid, movie, actors));
         }
 
         [Test]

@@ -10,6 +10,7 @@ namespace IMDbion_MovieHandlerService.Mappers
         {
             CreateMap<Movie, MovieDTO>().ReverseMap();
             CreateMap<MovieDTO, MovieCreateDTO>().ReverseMap();
+            CreateMap<Movie, MovieUpdateDTO>().ReverseMap();
             CreateMap<Movie, MovieCreateDTO>().ReverseMap();
         }
     }

@@ -68,7 +68,7 @@ namespace IMDbion_MovieHandlerService.Services
             return await GetMovie(movie.Id);
         }
 
-        public async Task<Movie> Update(Guid movieId, Movie movie, List<Guid> actorIds)
+        public async Task<Movie> Update(Guid movieId, Movie movie, List<Actor> actors)
         {
             if (movie == null)
             {
@@ -80,8 +80,13 @@ namespace IMDbion_MovieHandlerService.Services
             movie.UpdatedAt = DateTime.UtcNow;
 
             _movieContext.Update(movie);
-            DeleteMovieActors(movie);
-            InsertMovieActors(movie, actorIds);
+
+            if (actors.Any())
+            {
+                DeleteMovieActors(movie);
+                InsertMovieActors(movie, actors.Select(actor => actor.Id).ToList());
+            }
+
             await _movieContext.SaveChangesAsync();
 
             return await GetMovie(movie.Id);
