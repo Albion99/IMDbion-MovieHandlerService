@@ -40,7 +40,6 @@ namespace IMDbion_MovieHandlerService.ExceptionHandler
                     response.StatusCode = (int)HttpStatusCode.NotFound;
                     errorMessage = nfe.Message;
                     break;
-
                 case CantBeNullException cbe:
                     response.StatusCode = (int)HttpStatusCode.NotAcceptable;
                     errorMessage = cbe.Message;
@@ -49,7 +48,14 @@ namespace IMDbion_MovieHandlerService.ExceptionHandler
                     response.StatusCode = (int)HttpStatusCode.BadRequest;
                     errorMessage = bre.Message;
                     break;
-
+                case InvalidJWTTokenException ije:
+                    response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                    errorMessage = ije.Message;
+                    break;
+                case NotAuthorizedException nte:
+                    response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    errorMessage = nte.Message;
+                    break;
                 default:
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     errorMessage = "An error occurred while processing your request.";

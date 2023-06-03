@@ -7,6 +7,8 @@ using IMDbion_MovieHandlerService.Services;
 using IMDbion_MovieHandlerService.Mappers;
 using AutoMapper;
 using IMDbion_MovieHandlerService.DTOs;
+using System.IdentityModel.Tokens.Jwt;
+using IMDbion_MovieHandlerService.Exceptions;
 
 namespace IMDbion_MovieHandlerService.Controllers
 {
@@ -51,6 +53,8 @@ namespace IMDbion_MovieHandlerService.Controllers
         [HttpPost]
         public async Task<MovieDTO> AddMovie([FromBody] MovieCreateDTO movieCreateDTO)
         {
+            IsAdmin();
+
             Movie movie = _mapper.Map<Movie>(movieCreateDTO);
 
             await _movieService.Create(movie, movieCreateDTO.ActorIds);
@@ -62,6 +66,8 @@ namespace IMDbion_MovieHandlerService.Controllers
         [HttpPut("{movieId}")]
         public async Task<MovieDTO> UpdateMovie(Guid movieId, [FromBody] MovieUpdateDTO movieUpdateDTO)
         {
+            IsAdmin();
+
             Movie movie = _mapper.Map<Movie>(movieUpdateDTO);
 
             await _movieService.Update(movieId, movie, movie.Actors);
@@ -73,7 +79,26 @@ namespace IMDbion_MovieHandlerService.Controllers
         [HttpDelete("{movieId}")]
         public async Task DeleteMovie(Guid movieId)
         {
+            IsAdmin();
+
             await _movieService.Delete(movieId);
+        }
+
+        private void IsAdmin()
+        {
+            string tokenString = Request.Headers.TryGetValue("Authorization", out var headerValue)
+                ? headerValue.ToString().Replace("Bearer ", "")
+                : throw new InvalidJWTTokenException("Missing or invalid Authorization header!");
+
+            JwtSecurityTokenHandler tokenHandler = new();
+
+            JwtSecurityToken token = tokenHandler.ReadJwtToken(tokenString) ?? throw new InvalidJWTTokenException("Invalid JWT token.");
+            bool isAdmin = token.Claims.Any(claim => claim.Type == "https://s6albion.albionz.nl/roles" && claim.Value == "Admin");
+
+            if (isAdmin)
+            {
+                throw new NotAuthorizedException("Logged in user is not an Admin!");
+            }
         }
     }
 }
