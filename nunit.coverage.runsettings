@@ -1,0 +1,7 @@
+<RunSettings>
+  <NUnit>
+    <TestParameters>
+      <Parameter name="TestExecutionContext.ExecutionDirectory" value="%LAUNCHER_TOOL_EXECUTABLE_DIRECTORY%" />
+    </TestParameters>
+  </NUnit>
+</RunSettings>
