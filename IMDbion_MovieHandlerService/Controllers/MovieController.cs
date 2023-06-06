@@ -70,9 +70,9 @@ namespace IMDbion_MovieHandlerService.Controllers
 
             Movie movie = _mapper.Map<Movie>(movieUpdateDTO);
 
-            await _movieService.Update(movieId, movie, movie.Actors);
+            Movie updatedMovie = await _movieService.Update(movieId, movie, movieUpdateDTO.ActorIds);
 
-            MovieDTO movieDTO = _mapper.Map<MovieDTO>(movie);
+            MovieDTO movieDTO = _mapper.Map<MovieDTO>(updatedMovie);
             return movieDTO;
         }
 

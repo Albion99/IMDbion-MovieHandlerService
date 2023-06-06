@@ -9,7 +9,7 @@ namespace IMDbion_MovieHandlerService.Services
         public Task<int> GetTotalMoviesCount();
         public Task<Movie> GetMovie(Guid movieId);
         public Task<Movie> Create(Movie movie, List<Guid> actorIds);
-        public Task<Movie> Update(Guid movieId, Movie movie, List<Actor> actors);
+        public Task<Movie> Update(Guid movieId, Movie movie, List<Guid> actorIds);
         public Task Delete(Guid movieId);
     }
 }

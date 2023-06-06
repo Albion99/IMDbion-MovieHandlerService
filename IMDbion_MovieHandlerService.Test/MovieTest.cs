@@ -241,6 +241,11 @@ namespace IMDbion_MovieHandlerService.Test
                 };
             }).ToList();
 
+            List<Guid> actorIds = new()
+            {
+                actorList.First().Id,
+            };
+
             var mock = movieActors.BuildMock().BuildMockDbSet();
             _mockMovieContext.Setup(x => x.MovieActors).Returns(mock.Object);
 
@@ -253,7 +258,7 @@ namespace IMDbion_MovieHandlerService.Test
             movie.Title = "Test";
 
             // Act
-            var result = await _movieService.Update(movie.Id, movie, movie.Actors);
+            var result = await _movieService.Update(movie.Id, movie, actorIds);
 
             // Assert
             Assert.That(result.Id, Is.EqualTo(movie.Id));
@@ -271,9 +276,9 @@ namespace IMDbion_MovieHandlerService.Test
             // Arrange
             Movie movie = null;
             Guid guid = Guid.NewGuid();
-            List<Actor> actors = new();
+            List<Guid> actorIds = new();
             // Act
-            Assert.ThrowsAsync<CantBeNullException>(() => _movieService.Update(guid, movie, actors));
+            Assert.ThrowsAsync<CantBeNullException>(() => _movieService.Update(guid, movie, actorIds));
         }
 
         [Test]
