@@ -48,6 +48,7 @@ jobs:
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
   build:
+    needs: sonar-cloud
     runs-on: ubuntu-latest
 
     steps:
