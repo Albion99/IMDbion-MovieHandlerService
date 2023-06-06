@@ -95,7 +95,7 @@ namespace IMDbion_MovieHandlerService.Controllers
             JwtSecurityToken token = tokenHandler.ReadJwtToken(tokenString) ?? throw new InvalidJWTTokenException("Invalid JWT token.");
             bool isAdmin = token.Claims.Any(claim => claim.Type == "https://s6albion.albionz.nl/roles" && claim.Value == "Admin");
 
-            if (isAdmin)
+            if (!isAdmin)
             {
                 throw new NotAuthorizedException("Logged in user is not an Admin!");
             }
