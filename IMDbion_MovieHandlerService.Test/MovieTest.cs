@@ -12,7 +12,7 @@ using IMDbion_MovieHandlerService.Exceptions;
 using System.Formats.Asn1;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using IMDbion_MovieHandlerService.RabbitMQ;
+using MySqlX.XDevAPI.Common;
 
 namespace IMDbion_MovieHandlerService.Test
 {
@@ -20,14 +20,12 @@ namespace IMDbion_MovieHandlerService.Test
     {
         private Mock<MovieContext> _mockMovieContext;
         private MovieService _movieService;
-        private Mock<IRabbitMQRetriever<List<Actor>>> _mockRabbitMQRetriever;
 
         [SetUp]
         public void Setup()
         {
             _mockMovieContext = new Mock<MovieContext>();
-            _mockRabbitMQRetriever = new Mock<IRabbitMQRetriever<List<Actor>>>();
-            _movieService = new MovieService(_mockMovieContext.Object, _mockRabbitMQRetriever.Object);
+            _movieService = new MovieService(_mockMovieContext.Object);
         }
 
         [Test]
@@ -197,26 +195,7 @@ namespace IMDbion_MovieHandlerService.Test
         [Test]
         public async Task Should_Update_Movie_And_Return_Movie()
         {
-            IEnumerable<Actor> actorList = new List<Actor>() {
-                new Actor {
-                    Id = Guid.NewGuid(),
-                    Name = "name",
-                    Age = 20,
-                    CountryOfOrigin = "Netherlands",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                },
-                new Actor {
-                    Id = Guid.NewGuid(),
-                    Name = "name2",
-                    Age = 20,
-                    CountryOfOrigin = "Netherlands",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                },
-            };
-
-            // Arrange
+            //Arrange
             Movie movie = new()
             {
                 Id = Guid.NewGuid(),
@@ -227,40 +206,39 @@ namespace IMDbion_MovieHandlerService.Test
                 PublicationDate = new DateTime(1994, 9, 23),
                 CountryOfOrigin = "USA",
                 VideoPath = "path",
-                Actors = actorList.ToList(),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
 
-            List<MovieActor> movieActors = actorList.Select(actor =>
-            {
-                return new MovieActor
-                {
-                    Id = actor.Id,
-                    MovieId = movie.Id,
-                };
-            }).ToList();
-
             List<Guid> actorIds = new()
             {
-                actorList.First().Id,
+                Guid.NewGuid()
             };
 
-            var mock = movieActors.BuildMock().BuildMockDbSet();
-            _mockMovieContext.Setup(x => x.MovieActors).Returns(mock.Object);
+            List<MovieActor> movieActors = new()
+            {
+                new MovieActor
+                {
+                    MovieId = movie.Id,
+                    ActorId = actorIds.First(),
+                }
+            };
 
             _mockMovieContext.Setup(x => x.Movies.FindAsync(movie.Id)).ReturnsAsync(movie);
             _mockMovieContext.Setup(x => x.Movies.Update(movie)).Returns(Mock.Of<EntityEntry<Movie>>);
-            _mockMovieContext.Setup(x => x.AddRange(actorList));
+            _mockMovieContext.Setup(x => x.AddRange(movieActors));
+
+            var mock = movieActors.BuildMock().BuildMockDbSet();
+            _mockMovieContext.Setup(x => x.MovieActors).Returns(mock.Object);
 
             _mockMovieContext.Setup(x => x.SaveChangesAsync(default)).ReturnsAsync(1);
 
             movie.Title = "Test";
 
-            // Act
+            //Act
             var result = await _movieService.Update(movie.Id, movie, actorIds);
 
-            // Assert
+            //Assert
             Assert.That(result.Id, Is.EqualTo(movie.Id));
             Assert.That(result.Title, Is.EqualTo(movie.Title));
 

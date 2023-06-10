@@ -64,7 +64,7 @@ namespace IMDbion_MovieHandlerService.Controllers
         }
 
         [HttpPut("{movieId}")]
-        public async Task<MovieDTO> UpdateMovie(Guid movieId, [FromBody] MovieUpdateDTO movieUpdateDTO)
+        public async Task<MovieDTO> UpdateMovie(Guid movieId, [FromBody] MovieCreateDTO movieUpdateDTO)
         {
             IsAdmin();
 

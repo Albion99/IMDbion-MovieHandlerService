@@ -3,7 +3,6 @@ using IMDbion_MovieHandlerService.DataContext;
 using IMDbion_MovieHandlerService.DTOs;
 using IMDbion_MovieHandlerService.Exceptions;
 using IMDbion_MovieHandlerService.Models;
-using IMDbion_MovieHandlerService.RabbitMQ;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +13,10 @@ namespace IMDbion_MovieHandlerService.Services
     public class MovieService : IMovieService
     {
         private readonly MovieContext _movieContext;
-        private readonly IRabbitMQRetriever<List<Actor>> _rabbitMQRetriever;
 
-        public MovieService(MovieContext movieContext, IRabbitMQRetriever<List<Actor>> rabbitMQRetriever)
+        public MovieService(MovieContext movieContext)
         {
             _movieContext = movieContext;
-            _rabbitMQRetriever = rabbitMQRetriever;
         }
 
         public async Task<IEnumerable<Movie>> GetMovies(int pageSize, int pageNumber)
@@ -45,9 +42,7 @@ namespace IMDbion_MovieHandlerService.Services
                 throw new NotFoundException("Movie with id: " + movieId + " does not exist");
             }
 
-            List<Guid> actorIds = GetMovieActors(movieId).Select(movie => movie.ActorId).ToList();
-
-            movie.Actors = await _rabbitMQRetriever.PublishMessageAndGetResponse(actorIds);
+            movie.Actors = GetMovieActors(movieId);
 
             return movie;
         }

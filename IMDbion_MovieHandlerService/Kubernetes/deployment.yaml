@@ -23,21 +23,6 @@ spec:
                 secretKeyRef:
                   name: imdbion-movieservice-secrets
                   key: MovieContext
-            - name: RabbitMQ__Uri
-              valueFrom:
-                secretKeyRef:
-                  name: imdbion-movieservice-secrets
-                  key: RabbitUri
-            - name: RabbitMQ__Username
-              valueFrom:
-                secretKeyRef:
-                  name: imdbion-movieservice-secrets
-                  key: RabbitUsername
-            - name: RabbitMQ__Password
-              valueFrom:
-                secretKeyRef:
-                  name: imdbion-movieservice-secrets
-                  key: RabbitPassword
           imagePullPolicy: Always
 ---
 apiVersion: v1

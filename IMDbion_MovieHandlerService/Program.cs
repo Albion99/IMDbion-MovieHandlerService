@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using IMDbion_MovieHandlerService.ExceptionHandler;
 using IMDbion_MovieHandlerService.Services;
 using IMDbion_MovieHandlerService.Mappers;
-using IMDbion_MovieHandlerService.RabbitMQ;
 using Microsoft.Extensions.DependencyInjection;
 using IMDbion_MovieHandlerService.Models;
 
@@ -27,20 +26,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// Configure RabbitMQ connection
-builder.Services.AddSingleton<IRabbitMQConnection, RabbitMQConnection>(sp =>{
-    var hostname = builder.Configuration["RabbitMQ:Uri"];
-    var username = builder.Configuration["RabbitMQ:Username"];
-    var password = builder.Configuration["RabbitMQ:Password"];
-    return new RabbitMQConnection(hostname, username, password);
-});
-
-builder.Services.AddScoped<IRabbitMQRetriever<List<Actor>>>(sp =>
-{
-    var rabbitMQConnection = sp.GetRequiredService<IRabbitMQConnection>();
-    return new RabbitMQRetriever<List<Actor>>(rabbitMQConnection);
-});
 
 // Add services
 builder.Services.AddScoped<IMovieService, MovieService>();
