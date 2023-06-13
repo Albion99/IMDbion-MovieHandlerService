@@ -7,7 +7,7 @@ namespace IMDbion_MovieHandlerService.DTOs
         [RegularExpression(@"^[a-zA-Z ]+$", ErrorMessage = "Only alphabetic characters are allowed.")]
         public string Title { get; set; }
 
-        [RegularExpression(@"^[a-zA-Z ]+$", ErrorMessage = "Only alphabetic characters are allowed.")]
+        [RegularExpression(@"^[a-zA-Z !.'""?(),]+$", ErrorMessage = "Invalid character found in the description.")]
         public string Description { get; set; }
 
         [RegularExpression(@"^[a-zA-Z ]+$", ErrorMessage = "Only alphabetic characters are allowed.")]
